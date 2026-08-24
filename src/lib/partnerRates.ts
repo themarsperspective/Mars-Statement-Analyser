@@ -6,6 +6,12 @@
 // landing in "Residual Basis" was self-describing prose about margin/net revenue, not a
 // basis label). The fields below are re-aligned by content, not by raw column position.
 import { PartnerRateCard } from "./types";
+import { DNA_GATEWAY_FEE_TEXT, DNA_PCI_FEE_TEXT, DNA_RATE_BANDS } from "./dnaRates";
+
+const DNA_CP_RATE_TEXT = `Card-present, by monthly turnover band (${DNA_RATE_BANDS[1].label} to ${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].label}): Debit ${DNA_RATE_BANDS[1].debit}%→${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].debit}%; Credit ${DNA_RATE_BANDS[1].credit}%→${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].credit}%; Business Debit ${DNA_RATE_BANDS[1].businessDebit}%→${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].businessDebit}%; Business Credit ${DNA_RATE_BANDS[1].businessCredit}%→${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].businessCredit}%. See expanded details for the full band-by-band breakdown.`;
+const DNA_CNP_RATE_TEXT = `Online (inc. CNP), by monthly turnover band: Debit ${DNA_RATE_BANDS[1].onlineDebit}%→${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].onlineDebit}%; Credit ${DNA_RATE_BANDS[1].onlineCredit}%→${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].onlineCredit}%. See expanded details for the full band-by-band breakdown.`;
+const DNA_VOLUME_TIERS_TEXT = `Monthly turnover bands: ${DNA_RATE_BANDS.map((b) => b.label).join(" / ")}.`;
+const DNA_AUTH_FEE_TEXT = `${DNA_RATE_BANDS[1].authFeePence}p (lowest bands) down to ${DNA_RATE_BANDS[DNA_RATE_BANDS.length - 1].authFeePence}p (highest bands), by turnover band — see expanded details.`;
 
 export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
   {
@@ -24,12 +30,29 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     mmscText: null,
     terminalCostText:
       "Merchant-facing rental under Fixed Term Contract (FTC): 18-month standard term, Monthly Fee bands £10–£25/month; subsequent FTCs (same client, repeat terminal) also possible at £13 or £20/month.",
+    hardwareTiers: [
+      {
+        device: "myPOS Terminal (FTC rental)",
+        tiers: [
+          { label: "Monthly Fee — minimum band", price: "£10/month" },
+          { label: "Monthly Fee — maximum band", price: "£25/month" },
+        ],
+        note: "18-month standard term. 16 pound-increment bands between £10 and £25/month.",
+      },
+      {
+        device: "myPOS Terminal (subsequent FTC, same client)",
+        tiers: [
+          { label: "Lower band", price: "£13/month" },
+          { label: "Upper band", price: "£20/month" },
+        ],
+      },
+    ],
     setupFeeText: null,
     earlyTerminationFeeText: null,
     upfrontCommissionText:
       "FTC Commission per myPOS Terminal, by merchant's Monthly Fee: £10→£100, £11→£140, £12→£180, £13→£220, £14→£260, £15→£300, £16→£340, £17→£380, £18→£420, £19→£460, £20→£500, £21→£520, £22→£540, £23→£560, £24→£580, £25→£600. Subsequent FTC (repeat terminal, same client): £13→£100, £20→£200.",
     residualText:
-      "30% of Net Revenue (\"FTC Acquiring Commission\") on card acceptance transactions processed by Solicited Clients under an FTC (18-month standard term). Only payable in a given month if TMP has introduced at least 10 new Solicited Clients under FTC within that same calendar month.",
+      "30% of Net Revenue (\"FTC Acquiring Commission\") on card acceptance transactions processed by Solicited Clients under an FTC (18-month standard term). Only payable in a given month if you've introduced at least 10 new Solicited Clients under FTC within that same calendar month.",
     residualBasisText:
       "Revenue/Margin — Net Revenue, with myPOS's own \"Commercial Component\" fixed at £0.00 per card transaction in this calculation.",
     residualDurationText:
@@ -43,16 +66,44 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     hasData: true,
     pricingModel:
       "Interchange++ (IC+). DNA's own margin (\"DNAP Processing Fee\") is defined at 0.00% / £0 on top of interchange — unusually low, confirm directly with DNA.",
-    cpRateText:
-      "F2F (card-present), per DNA Rates Matrix: Debit 0.6% (£0–£50k band) down to 0.3% (>£1m); Credit 1% down to 0.6%; Premium Credit 2% down to 1.85%. Intermediate-band rates between £50k and £1m aren't stated.",
-    cnpRateText:
-      "Online/CNP, per DNA Rates Matrix: Debit 0.9% down to 0.6%; Credit 1.3% down to 0.9%; Premium Credit 2.3% down to 2.15%.",
-    volumeTiersText:
-      "Monthly turnover bands: £0 (NTC) / £1–£50k / £50,001–£100k / £100,001–£200k / £200,001–£300k / £300,001–£400k / £400,001–£500k / £500,001–£750k / £750,001–£1m / £1,000,001+ (no limit).",
-    authFeeText: null,
-    pciFeeText: null,
+    cpRateText: DNA_CP_RATE_TEXT,
+    cnpRateText: DNA_CNP_RATE_TEXT,
+    volumeTiersText: DNA_VOLUME_TIERS_TEXT,
+    authFeeText: DNA_AUTH_FEE_TEXT,
+    pciFeeText: `PCI Fee: ${DNA_PCI_FEE_TEXT}. Gateway Fee (ecommerce): ${DNA_GATEWAY_FEE_TEXT}.`,
     mmscText: null,
-    terminalCostText: null,
+    terminalCostText:
+      "PAX A920 Pro: £325+VAT to buy outright, or £15/month (24-month term), £10/month (36-month term), £10/month (48-month term). Nexgo N86: same pricing as PAX A920 Pro. IM30: £425+VAT to buy outright, or £20/month (24-month term), £12/month (36-month term), £10/month (48-month term).",
+    hardwareTiers: [
+      {
+        device: "PAX A920 Pro",
+        tiers: [
+          { label: "Buy outright", price: "£325+VAT" },
+          { label: "24-month term", price: "£15/month" },
+          { label: "36-month term", price: "£10/month" },
+          { label: "48-month term", price: "£10/month" },
+        ],
+      },
+      {
+        device: "Nexgo N86",
+        tiers: [
+          { label: "Buy outright", price: "£325+VAT" },
+          { label: "24-month term", price: "£15/month" },
+          { label: "36-month term", price: "£10/month" },
+          { label: "48-month term", price: "£10/month" },
+        ],
+        note: "Same pricing as PAX A920 Pro.",
+      },
+      {
+        device: "IM30",
+        tiers: [
+          { label: "Buy outright", price: "£425+VAT" },
+          { label: "24-month term", price: "£20/month" },
+          { label: "36-month term", price: "£12/month" },
+          { label: "48-month term", price: "£10/month" },
+        ],
+      },
+    ],
     setupFeeText:
       "One-off setup/installation fee is deducted from Net Recurring Revenue before commission is calculated — amount not stated.",
     earlyTerminationFeeText: null,
@@ -65,14 +116,14 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     paymentTermsText:
       "Monthly — DNA publishes a statement within 10 business days of month-end, pays within 10 business days of that.",
     clawbackText:
-      "None for chargebacks, refunds or 'Non-Controllable Costs' (explicitly excluded). Separate penalty if TMP breaches non-solicitation, owed by TMP to DNA, not a clawback of TMP's commission.",
+      "None for chargebacks, refunds or 'Non-Controllable Costs' (explicitly excluded). Separate penalty if you breach non-solicitation, owed by you to DNA, not a clawback of your commission.",
   },
   {
     partner: "Epos Now",
     hasData: true,
     pricingModel:
-      "Blended — TMP chooses which of two fixed rates to quote per merchant. Commission is tied to the choice: the lower rate favours the merchant, the higher rate favours TMP's commission.",
-    cpRateText: "1% blended (maximises customer saving) or 1.5% blended (maximises commission) — TMP's choice.",
+      "Blended — you choose which of two fixed rates to quote per merchant. Commission is tied to the choice: the lower rate favours the merchant, the higher rate favours your commission.",
+    cpRateText: "1% blended (maximises customer saving) or 1.5% blended (maximises commission) — your choice.",
     cnpRateText: "Same blended rate as CP — Epos Now doesn't publish a separate CNP rate.",
     volumeTiersText: null,
     authFeeText: null,
@@ -81,6 +132,18 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
       "Support & Care plan (excl. VAT): Standard £39/month or Premium £49/month (additional plans get a £10/month discount).",
     terminalCostText:
       "Payments Hardware (excl. VAT, no contract length stated): Link £15/month, Air £19/month, Pro £20/month, Pro+ £45/month.",
+    hardwareTiers: [
+      {
+        device: "Payments Hardware",
+        tiers: [
+          { label: "Link", price: "£15/month" },
+          { label: "Air", price: "£19/month" },
+          { label: "Pro", price: "£20/month" },
+          { label: "Pro+", price: "£45/month" },
+        ],
+        note: "Excl. VAT; no contract length stated.",
+      },
+    ],
     setupFeeText: null,
     earlyTerminationFeeText: null,
     upfrontCommissionText:
@@ -99,7 +162,7 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     pricingModel:
       "Blended, single-rate model for all UK-issued cards. IC++/split pricing is also available as an alternative to blended, but incurs a per-transaction authorisation fee not specified in the source.",
     cpRateText:
-      "10k+/month turnover: negotiable down to 0.5% debit / 0.6% credit per TMP's direct negotiated terms; 0.7% blended is the standard headline rate. Under 10k/month turnover: 1.25% blended minimum (hard floor). AMEX flat 1.9% regardless of tier.",
+      "10k+/month turnover: negotiable down to 0.5% debit / 0.6% credit per your direct negotiated terms; 0.7% blended is the standard headline rate. Under 10k/month turnover: 1.25% blended minimum (hard floor). AMEX flat 1.9% regardless of tier.",
     cnpRateText: "1.99% flat rate — not shown as varying by turnover tier in the source.",
     volumeTiersText:
       "Two turnover tiers, both for the Shift4 One standalone card reader: (1) 10k+/month card turnover; (2) under 10k/month.",
@@ -107,16 +170,27 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     pciFeeText: "£0 / €0.",
     mmscText: "£0 / €0.",
     terminalCostText:
-      "Shift4 One standalone card reader: free, no monthly rental, for the first terminal on businesses with £10k+/month card turnover; £14/month for any additional terminal on those merchants; £14/month for the first terminal on businesses under £10k/month turnover. Standard contract term is 18 months.",
+      "Shift4 One standalone card reader: free, no monthly rental, for the first terminal on businesses with £10k+/month card turnover; £12/month for any additional terminal on those merchants; £12/month for the first terminal on businesses under £10k/month turnover. Standard contract term is 18 months.",
+    hardwareTiers: [
+      {
+        device: "Shift4 One (standalone card reader)",
+        tiers: [
+          { label: "First terminal (≥£10k/month turnover)", price: "Free" },
+          { label: "Additional terminal (≥£10k/month turnover)", price: "£12/month" },
+          { label: "First terminal (under £10k/month turnover)", price: "£12/month" },
+        ],
+        note: "Standard contract term 18 months.",
+      },
+    ],
     setupFeeText: "None - confirmed no onboarding/setup fee.",
     earlyTerminationFeeText: null,
     upfrontCommissionText:
       "£500 gross per activation.",
-    residualText: "50% residual to TMP. Plus a one-off bonus in week 14 equal to 14x that week's residual payment.",
+    residualText: "50% residual to you. Plus a one-off bonus in week 14 equal to 14x that week's residual payment.",
     residualBasisText: "Not specified - confirm with Shift4 whether the 50% residual is calculated on turnover or margin.",
     residualDurationText: "Not specified beyond the week 14 bonus mechanic.",
     paymentTermsText:
-      "Week 14 bonus: TMP receives a one-off payment equal to 14x that week's residual. Standard residual payment frequency not otherwise specified.",
+      "Week 14 bonus: you receive a one-off payment equal to 14x that week's residual. Standard residual payment frequency not otherwise specified.",
     clawbackText: "Not specified.",
   },
   {
@@ -125,20 +199,24 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     pricingModel:
       "Blended and unblended (IC++/split) both available. Merchant is not on one fixed rate — it's calculated per-merchant via Teya's own pricing calculator/quote tool.",
     cpRateText:
-      "Public reference point only (Teya's own 'Start' plan, not necessarily TMP's negotiated partner rate): 1.59% blended on Visa/Mastercard consumer cards for £0-£7,500/month turnover; Amex, international and business cards priced separately at 1.90%. Higher-turnover merchants get a 'custom offer' via Teya sales, no public figure.",
-    cnpRateText: "Same calculator-driven pricing as CP - no separate published CNP rate found.",
+      "No confirmed public or negotiated rate on file — Teya prices per-merchant via its own pricing calculator. Check Teya's pricing calculator before quoting.",
+    cnpRateText: "Same calculator-driven pricing as CP — no separate published CNP rate found.",
     volumeTiersText:
-      "Start (£0-£7,500/month turnover) at 1.59% blended, £0/month device fee, but a £29.99 fee applies if monthly card turnover is under £2,500. Above £7,500/month, Teya quotes a bespoke 'custom offer'. MOTO surcharge on top of base rate: +0.5% under IC++ pricing, +1% under Blended (non-hotel), +1.5% under Blended (hotel/lodging).",
+      "No public rate bands on file — pricing is quoted per-merchant via Teya's calculator, not published tiers.",
     authFeeText: "None found on Teya's published Fees page for card-present transactions.",
     pciFeeText: "Not listed as a separate fee on Teya's published Fees page.",
-    mmscText:
-      "Not listed as a separate fee on Teya's published Fees page. The public Start plan does carry a conditional £29.99 fee for monthly turnover under £2,500.",
-    terminalCostText: "Not specified in what's been provided.",
+    mmscText: "Not listed as a separate fee on Teya's published Fees page.",
+    terminalCostText: "Teya Lite £10/month; PAX A35 £15/month; Teya Pro £25/month.",
+    hardwareTiers: [
+      { device: "Teya Lite", tiers: [{ label: "Monthly rental", price: "£10/month" }] },
+      { device: "PAX A35", tiers: [{ label: "Monthly rental", price: "£15/month" }] },
+      { device: "Teya Pro", tiers: [{ label: "Monthly rental", price: "£25/month" }] },
+    ],
     setupFeeText: null,
     earlyTerminationFeeText: null,
     upfrontCommissionText:
-      "£500 gross per activation.",
-    residualText: "50% residual to TMP.",
+      "£350 gross per activation.",
+    residualText: "50% residual to you.",
     residualBasisText:
       "Not specified in the ISC Agreement itself - confirm with Teya whether the 50% residual is calculated on turnover or margin.",
     residualDurationText:
@@ -150,22 +228,43 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
   },
   {
     // Source: Ignite Commission Brochure 2025 v4 — Clover Flex / Flex Pocket only.
-    // A separate reseller/ISO relationship selling Clover hardware, distinct from any
-    // "Clover" acquirer already detected on a statement (that's Fiserv/Clover as the
-    // acquiring bank; Ignite is a commission-paying partner TMP sells through).
-    partner: "Ignite",
+    // Displayed as "Clover" throughout the app per the hardware brand it sells, but this
+    // is a separate reseller/ISO relationship (Ignite Payments), distinct from any
+    // "Clover" ACQUIRER already detected on a statement (that's Fiserv/Clover as the
+    // acquiring bank). Watch for this collision: a statement whose acquirerName is
+    // "Clover" (Fiserv) will show "Current: Clover" alongside a recommended "Clover"
+    // partner card that is a completely different business relationship.
+    partner: "Clover",
     hasData: true,
     pricingModel:
-      "Blended, band-based (Merchant Pricing Policy) — TMP sets the merchant's rate within a fixed min/max band per card type, not a single negotiated rate. You cannot sell below the minimum or above the maximum.",
+      "Blended, band-based (Merchant Pricing Policy) — you set the merchant's rate within a fixed min/max band per card type, not a single negotiated rate. You cannot sell below the minimum or above the maximum.",
     cpRateText:
       "Consumer Debit 0.29%-1.49%; Consumer Credit 0.50%-1.49%; Commercial Debit 1.00%-1.99%; Commercial Credit 1.80%-2.99%; Non-Qualified 0.50% (fixed).",
-    cnpRateText: "Same blended bands as CP — Ignite's Merchant Pricing Policy doesn't split CP/CNP.",
+    cnpRateText: "Same blended bands as CP — Clover's Merchant Pricing Policy doesn't split CP/CNP.",
     volumeTiersText: "No turnover-based volume tiers — the rate is set once per merchant within the fixed min/max band, not banded by turnover.",
     authFeeText: "2p-5p (blended) per transaction.",
-    pciFeeText: "n/a on Ignite's fee schedule.",
+    pciFeeText: "n/a on Clover's fee schedule.",
     mmscText: "£0.00-£20 (blended).",
     terminalCostText:
       "Clover Flex: £20/month (36-month term) or £10/month (48-month term) to the merchant. Clover Flex Pocket: same £20/£10 monthly bands by term. A 6-month 'Step-Up' promo is available on both — £1/month for the first 6 months, then reverting to the sold rate.",
+    hardwareTiers: [
+      {
+        device: "Clover Flex",
+        tiers: [
+          { label: "36 months", price: "£20/month" },
+          { label: "48 months", price: "£10/month" },
+        ],
+        note: "Step-Up offer: £1/month for the first 6 months, then reverting to the sold rate.",
+      },
+      {
+        device: "Clover Flex Pocket",
+        tiers: [
+          { label: "36 months", price: "£20/month" },
+          { label: "48 months", price: "£10/month" },
+        ],
+        note: "Step-Up offer: £1/month for the first 6 months, then reverting to the sold rate.",
+      },
+    ],
     setupFeeText: null,
     earlyTerminationFeeText: null,
     upfrontCommissionText:
@@ -173,7 +272,7 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
     residualText: "40% residual monthly above Interchange and Scheme fees (blended pricing).",
     residualBasisText: "Margin — above Interchange and Scheme fees, not turnover.",
     residualDurationText:
-      "Ongoing monthly, but only in months where the qualification criteria is met: 1+ new live MID per calendar month across TMP's whole Ignite relationship (not per-merchant). A MID must go live the day before month-end to count for that month; if it goes live on the last day of the month, it counts for the following month instead.",
+      "Ongoing monthly, but only in months where the qualification criteria is met: 1+ new live MID per calendar month across your whole Clover relationship (not per-merchant). A MID must go live the day before month-end to count for that month; if it goes live on the last day of the month, it counts for the following month instead.",
     paymentTermsText:
       "Weekly commission (device sales) paid Mondays in arrears, once the MID is live. Residual commission paid monthly in arrears, before the last Friday of the following month.",
     clawbackText:
@@ -186,7 +285,7 @@ export const PARTNER_RATE_CARDS: PartnerRateCard[] = [
   { partner: "Modern World", hasData: false, pricingModel: null, cpRateText: null, cnpRateText: null, volumeTiersText: null, authFeeText: null, pciFeeText: null, mmscText: null, terminalCostText: null, setupFeeText: null, earlyTerminationFeeText: null, upfrontCommissionText: null, residualText: null, residualBasisText: null, residualDurationText: null, paymentTermsText: null, clawbackText: null },
 ];
 
-export const RANKABLE_PARTNERS = ["myPOS", "DNA Payments", "Shift4", "Teya", "Epos Now", "Ignite"] as const;
+export const RANKABLE_PARTNERS = ["myPOS", "DNA Payments", "Shift4", "Teya", "Epos Now", "Clover"] as const;
 export const OTHER_OPTION_PARTNERS = ["Konect", "Dojo", "Sumup", "Paya Group", "Modern World"] as const;
 
 /** Partner portal URLs for login / quoting / pricing calculations — not all rankable partners have one on file yet. */
@@ -197,5 +296,6 @@ export const PARTNER_PORTAL_LINKS: Record<string, string> = {
   Teya: "https://partner.teya.com",
   Shift4:
     "https://link.shift4payments.com/auth/login?role=salesRepresentative&redirectUrl=https%3A%2F%2Fapi.dealer-portal.shift4.com%2Fapi%2Fauth%2Flink%3Fredirect%3Dhttps%253A%252F%252Fpartner-portal.shift4.com%252F&application=partner+portal",
-  Ignite: "https://boarding.ignitepayments.co.uk/login/login",
+  // Portal URL is Ignite Payments' real boarding system — unrelated to the "Clover" display name.
+  Clover: "https://boarding.ignitepayments.co.uk/login/login",
 };

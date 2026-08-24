@@ -1,0 +1,81 @@
+{
+  "_readme": "Mars Business Club opportunity scoring config. Scores are authoritative business data, not AI-generated. Column order per service: Utilities, EPOS, Insurance, Telecoms, Business Finance, Commercial Finance, Employee Benefits, E-commerce.",
+  "industries": {
+    "Pub / Bar": { "Utilities": 94, "EPOS": 92, "Insurance": 86, "Telecoms": 72, "Business Finance": 60, "Commercial Finance": 42, "Employee Benefits": 52, "E-commerce": 35, "premises_dependency": "High" },
+    "Restaurant": { "Utilities": 94, "EPOS": 95, "Insurance": 86, "Telecoms": 72, "Business Finance": 62, "Commercial Finance": 45, "Employee Benefits": 52, "E-commerce": 50, "premises_dependency": "High" },
+    "Takeaway / QSR": { "Utilities": 91, "EPOS": 95, "Insurance": 82, "Telecoms": 68, "Business Finance": 62, "Commercial Finance": 38, "Employee Benefits": 35, "E-commerce": 72, "premises_dependency": "High" },
+    "Café / Coffee Shop": { "Utilities": 88, "EPOS": 92, "Insurance": 80, "Telecoms": 67, "Business Finance": 58, "Commercial Finance": 35, "Employee Benefits": 40, "E-commerce": 48, "premises_dependency": "High" },
+    "Hotel / Accommodation": { "Utilities": 97, "EPOS": 89, "Insurance": 91, "Telecoms": 88, "Business Finance": 65, "Commercial Finance": 78, "Employee Benefits": 72, "E-commerce": 70, "premises_dependency": "High" },
+    "Care Home / Residential Care": { "Utilities": 97, "EPOS": 38, "Insurance": 94, "Telecoms": 84, "Business Finance": 58, "Commercial Finance": 70, "Employee Benefits": 93, "E-commerce": 18, "premises_dependency": "High" },
+    "Domiciliary Care Agency": { "Utilities": 45, "EPOS": 25, "Insurance": 93, "Telecoms": 88, "Business Finance": 58, "Commercial Finance": 45, "Employee Benefits": 92, "E-commerce": 18, "premises_dependency": "Low" },
+    "Convenience / Grocery Store": { "Utilities": 89, "EPOS": 91, "Insurance": 84, "Telecoms": 65, "Business Finance": 58, "Commercial Finance": 42, "Employee Benefits": 40, "E-commerce": 45, "premises_dependency": "High" },
+    "General Retail": { "Utilities": 74, "EPOS": 88, "Insurance": 82, "Telecoms": 63, "Business Finance": 57, "Commercial Finance": 42, "Employee Benefits": 42, "E-commerce": 68, "premises_dependency": "High" },
+    "Fashion / Boutique Retail": { "Utilities": 68, "EPOS": 88, "Insurance": 82, "Telecoms": 62, "Business Finance": 58, "Commercial Finance": 38, "Employee Benefits": 40, "E-commerce": 75, "premises_dependency": "High" },
+    "Salon / Barber / Beauty": { "Utilities": 77, "EPOS": 90, "Insurance": 85, "Telecoms": 65, "Business Finance": 55, "Commercial Finance": 36, "Employee Benefits": 40, "E-commerce": 45, "premises_dependency": "High" },
+    "Spa / Wellness Clinic": { "Utilities": 82, "EPOS": 83, "Insurance": 88, "Telecoms": 70, "Business Finance": 58, "Commercial Finance": 52, "Employee Benefits": 52, "E-commerce": 48, "premises_dependency": "High" },
+    "Gym / Fitness / Leisure": { "Utilities": 88, "EPOS": 80, "Insurance": 89, "Telecoms": 76, "Business Finance": 60, "Commercial Finance": 67, "Employee Benefits": 58, "E-commerce": 55, "premises_dependency": "High" },
+    "Garage / MOT / Vehicle Repair": { "Utilities": 82, "EPOS": 72, "Insurance": 95, "Telecoms": 64, "Business Finance": 60, "Commercial Finance": 92, "Employee Benefits": 46, "E-commerce": 24, "premises_dependency": "High" },
+    "Car Dealership": { "Utilities": 72, "EPOS": 68, "Insurance": 94, "Telecoms": 70, "Business Finance": 65, "Commercial Finance": 91, "Employee Benefits": 48, "E-commerce": 55, "premises_dependency": "High" },
+    "Construction Company": { "Utilities": 48, "EPOS": 20, "Insurance": 97, "Telecoms": 77, "Business Finance": 62, "Commercial Finance": 94, "Employee Benefits": 58, "E-commerce": 15, "premises_dependency": "Medium" },
+    "Trades / Contractor": { "Utilities": 42, "EPOS": 24, "Insurance": 94, "Telecoms": 73, "Business Finance": 58, "Commercial Finance": 82, "Employee Benefits": 30, "E-commerce": 15, "premises_dependency": "Low" },
+    "Transport / Logistics": { "Utilities": 52, "EPOS": 35, "Insurance": 96, "Telecoms": 82, "Business Finance": 62, "Commercial Finance": 94, "Employee Benefits": 57, "E-commerce": 22, "premises_dependency": "Medium" },
+    "Professional Services": { "Utilities": 38, "EPOS": 28, "Insurance": 90, "Telecoms": 89, "Business Finance": 52, "Commercial Finance": 38, "Employee Benefits": 68, "E-commerce": 35, "premises_dependency": "Medium" },
+    "Accountancy / Legal / Consultancy": { "Utilities": 35, "EPOS": 25, "Insurance": 93, "Telecoms": 90, "Business Finance": 50, "Commercial Finance": 36, "Employee Benefits": 72, "E-commerce": 35, "premises_dependency": "Medium" },
+    "Dental / Medical / Private Clinic": { "Utilities": 77, "EPOS": 70, "Insurance": 94, "Telecoms": 82, "Business Finance": 58, "Commercial Finance": 75, "Employee Benefits": 72, "E-commerce": 40, "premises_dependency": "High" },
+    "Nursery / Childcare": { "Utilities": 85, "EPOS": 48, "Insurance": 94, "Telecoms": 76, "Business Finance": 56, "Commercial Finance": 67, "Employee Benefits": 83, "E-commerce": 20, "premises_dependency": "High" },
+    "Education / Training Centre": { "Utilities": 66, "EPOS": 48, "Insurance": 88, "Telecoms": 85, "Business Finance": 54, "Commercial Finance": 58, "Employee Benefits": 75, "E-commerce": 52, "premises_dependency": "Medium" },
+    "E-commerce / Online Retailer": { "Utilities": 25, "EPOS": 18, "Insurance": 75, "Telecoms": 72, "Business Finance": 68, "Commercial Finance": 42, "Employee Benefits": 38, "E-commerce": 98, "premises_dependency": "Low" },
+    "Wholesale / Distribution": { "Utilities": 62, "EPOS": 45, "Insurance": 88, "Telecoms": 76, "Business Finance": 62, "Commercial Finance": 83, "Employee Benefits": 52, "E-commerce": 62, "premises_dependency": "Medium" },
+    "Manufacturing": { "Utilities": 86, "EPOS": 40, "Insurance": 94, "Telecoms": 75, "Business Finance": 62, "Commercial Finance": 96, "Employee Benefits": 65, "E-commerce": 38, "premises_dependency": "High" },
+    "Entertainment / Events Venue": { "Utilities": 86, "EPOS": 85, "Insurance": 93, "Telecoms": 80, "Business Finance": 62, "Commercial Finance": 68, "Employee Benefits": 56, "E-commerce": 65, "premises_dependency": "High" },
+    "Charity / NFP premises-based": { "Utilities": 68, "EPOS": 52, "Insurance": 80, "Telecoms": 80, "Business Finance": 40, "Commercial Finance": 48, "Employee Benefits": 70, "E-commerce": 45, "premises_dependency": "Medium" },
+    "Other / Unclassified": { "Utilities": 50, "EPOS": 45, "Insurance": 65, "Telecoms": 60, "Business Finance": 48, "Commercial Finance": 40, "Employee Benefits": 40, "E-commerce": 40, "premises_dependency": "Medium" }
+  },
+  "modifiers": [
+    { "id": "epos_3_4_terminals", "condition": "3-4 physical terminals", "adjustments": { "EPOS": 4 } },
+    { "id": "epos_5plus_terminals", "condition": "5+ physical terminals", "adjustments": { "EPOS": 7 } },
+    { "id": "multi_mid_inferred", "condition": "Multiple merchant IDs suggesting multiple locations (inferred)", "adjustments": { "EPOS": 5, "Telecoms": 4, "Utilities": 5 }, "conflict_group": "multi_site", "confidence": "inferred" },
+    { "id": "multi_site_confirmed", "condition": "Confirmed multi-site business", "adjustments": { "Utilities": 8, "Telecoms": 6, "EPOS": 7 }, "conflict_group": "multi_site", "confidence": "confirmed" },
+    { "id": "cnp_10_24", "condition": "CNP/online = 10-24%", "adjustments": { "E-commerce": 8 } },
+    { "id": "cnp_25_49", "condition": "CNP/online = 25-49%", "adjustments": { "E-commerce": 15 } },
+    { "id": "cnp_50plus", "condition": "CNP/online >= 50%", "adjustments": { "E-commerce": 22 } },
+    { "id": "online_only", "condition": "Clearly online-only", "set_minimum": { "E-commerce": 95 } },
+    { "id": "turnover_50_99k", "condition": "Monthly card turnover £50k-£99,999", "adjustments": { "Business Finance": 2 } },
+    { "id": "turnover_100_249k", "condition": "Monthly card turnover £100k-£249,999", "adjustments": { "Business Finance": 4 } },
+    { "id": "turnover_250k_plus", "condition": "Monthly card turnover £250k+", "adjustments": { "Business Finance": 6 } },
+    { "id": "explicit_funding_need", "condition": "Explicit funding need identified", "adjustments": { "Business Finance": 20 } },
+    { "id": "explicit_equipment_need", "condition": "Explicit equipment/vehicle/machinery need", "adjustments": { "Commercial Finance": 20 } },
+    { "id": "employees_10plus", "condition": "Confirmed 10+ employees", "adjustments": { "Employee Benefits": 8 } },
+    { "id": "employees_25plus", "condition": "Confirmed 25+ employees", "adjustments": { "Employee Benefits": 12 } },
+    { "id": "employees_50plus", "condition": "Confirmed 50+ employees", "adjustments": { "Employee Benefits": 15 } },
+    { "id": "sole_trader", "condition": "Sole trader / clearly one-person business", "adjustments": { "Employee Benefits": -30 } },
+    { "id": "no_premises", "condition": "Confirmed no commercial premises", "adjustments_by_premises_dependency": { "High": { "Utilities": -30 }, "Medium": { "Utilities": -15 }, "Low": {} }, "note": "Do not apply if industry premises_dependency is Low, base score already reflects this." },
+    { "id": "existing_epos_present", "condition": "Current integrated EPOS visibly present", "adjustments": { "EPOS": -10 }, "note": "Unless the analysis is specifically reviewing an EPOS replacement." },
+    { "id": "no_cnp_detected", "condition": "No CNP/online activity detected", "adjustments": { "E-commerce": -10 } }
+  ],
+  "conflict_rules": {
+    "principle": "One business fact should influence a score once. Where inferred and confirmed evidence both exist for the same underlying fact, apply the confirmed modifier only, never both. Use the most specific, highest-confidence rule available.",
+    "conflict_groups": {
+      "multi_site": { "prefer": "multi_site_confirmed", "over": "multi_mid_inferred" }
+    }
+  },
+  "high_risk_merchant_services": {
+    "hidden_by_default": true,
+    "base_score_if_configured_specialist_sector": 80,
+    "modifiers": [
+      { "condition": "Evidence of previous acquiring rejection or placement difficulty", "adjustment": 10 },
+      { "condition": "Evidence of specialist acquiring restrictions, reserve requirements, or unusually burdensome acquiring terms", "adjustment": 5 },
+      { "condition": "Existing stable specialist acquiring arrangement with no identified issue", "adjustment": -10 }
+    ],
+    "max_score": 100,
+    "display_threshold": 70,
+    "wording_rule": "Never describe the merchant itself as 'high-risk'. Use phrasing such as 'Specialist acquiring may be worth reviewing for this business type.'"
+  },
+  "score_bands": [
+    { "min": 90, "max": 100, "label": "Exceptional", "description": "A priority conversation." },
+    { "min": 80, "max": 89, "label": "Very High", "description": "Strong relevance." },
+    { "min": 70, "max": 79, "label": "High", "description": "Clearly worth qualifying." },
+    { "min": 60, "max": 69, "label": "Moderate", "description": "Worth asking if the conversation permits." },
+    { "min": 0, "max": 59, "label": "Low", "description": "Normally do not display, unless a specific explicit signal makes it useful." }
+  ]
+}

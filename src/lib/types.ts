@@ -116,7 +116,47 @@ export interface PartnerRateCard {
   residualDurationText: string | null;
   paymentTermsText: string | null;
   clawbackText: string | null;
+  /**
+   * Structured hardware pricing, manually transcribed from terminalCostText for
+   * the partners whose source data is already cleanly tabular (myPOS, DNA Payments,
+   * Clover, Epos Now, Shift4, Teya) — static data only, never inferred/parsed from
+   * prose at runtime. Absent for partners whose hardware text isn't cleanly tiered;
+   * those still render their existing terminalCostText compactly.
+   */
+  hardwareTiers?: {
+    device: string;
+    tiers: { label: string; price: string }[];
+    note?: string;
+  }[];
 }
+
+/** One rate line for structured, pricing-model-aware display, e.g. { label: "Consumer Debit (CP)", value: "0.31%" }. */
+export interface RateDisplayLine {
+  label: string;
+  value: string;
+}
+
+/**
+ * How to render a partner's rate on-screen, so the UI never forces a
+ * different pricing structure onto a provider just to look uniform.
+ * Populated only from numbers already in scope in that partner's compute
+ * branch — never a new figure. Null when there's nothing to show (matches
+ * quotableRateSummary === null).
+ */
+export interface RateDisplay {
+  structure: "blended" | "debit-credit" | "consumer-debit-credit" | "interchange" | "bespoke" | "from-rate";
+  lines: RateDisplayLine[];
+  /** True for from-rate/negotiable bands — never a firm quote. */
+  indicative: boolean;
+}
+
+/**
+ * Reliability of the pricing INPUTS behind estimatedCost — not whether a
+ * number happened to come out. "calculated" never implies formal provider
+ * approval/underwriting, only that enough configured data exists to model
+ * the provider with reasonable confidence.
+ */
+export type PricingStatus = "calculated" | "indicative" | "unavailable";
 
 /** A single computed or not-computable result for one partner against one statement. */
 export interface PartnerEstimate {
@@ -139,6 +179,10 @@ export interface PartnerEstimate {
   upfrontCommissionSummary: string | null;
   /** One-line residual summary for the condensed card, e.g. "30% of Net Revenue". */
   residualSummary: string | null;
+  /** See PricingStatus. */
+  pricingStatus: PricingStatus;
+  /** Structured, pricing-model-aware rate lines for display. Null when there's nothing concrete to show. */
+  rateDisplay: RateDisplay | null;
 }
 
 export interface RankingSummary {
@@ -147,6 +191,8 @@ export interface RankingSummary {
   bestForTmp: PartnerEstimate[];
   /** Always shown beneath the "Best for TMP" list when it has entries — flags that some figures are estimated. */
   bestForTmpCaveat: string;
+  /** Shown prominently above the ranked lists when the statement covers a single day rather than a full month. */
+  singleDayNotice: string | null;
   teyaNote: string;
   otherOptions: string[];
 }

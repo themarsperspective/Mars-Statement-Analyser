@@ -15,9 +15,11 @@
 import { ExtractedData, MyposPackage, NOT_AVAILABLE, PartnerEstimate, RankingSummary } from "./types";
 import { MYPOS_TARIFF_TABLE } from "./myposTariff";
 import { OTHER_OPTION_PARTNERS } from "./partnerRates";
+import { dnaBandFor, DNA_GATEWAY_FEE_TEXT } from "./dnaRates";
+import { isSingleDayPeriod, SINGLE_DAY_NOTICE } from "./statementPeriod";
 
 const BEST_FOR_TMP_CAVEAT =
-  "Ranked using the best available figure for each partner — some (marked ~) are the highest achievable tier or ceiling rather than a fixed confirmed commission, and depend on choices TMP makes when quoting (e.g. terminal rental tier, rate offered). More complete data from partners is needed for a fully accurate ranking.";
+  "Ranked using the best available figure for each partner — some (marked ~) are the highest achievable tier or ceiling rather than a fixed confirmed commission, and depend on choices you make when quoting (e.g. terminal rental tier, rate offered). More complete data from partners is needed for a fully accurate ranking.";
 
 const MYPOS_UPFRONT_SUMMARY = "£100–£600 (by rental tier)";
 const MYPOS_RESIDUAL_SUMMARY = "30% of Net Revenue";
@@ -25,12 +27,12 @@ const DNA_UPFRONT_SUMMARY = "Not stated";
 const DNA_RESIDUAL_SUMMARY = "30% of Net Recurring Revenue";
 const SHIFT4_UPFRONT_SUMMARY = "£500";
 const SHIFT4_RESIDUAL_SUMMARY = "50%, basis unconfirmed";
-const TEYA_UPFRONT_SUMMARY = "£500";
+const TEYA_UPFRONT_SUMMARY = "£350";
 const TEYA_RESIDUAL_SUMMARY = "50%, basis unconfirmed";
 const EPOS_NOW_UPFRONT_SUMMARY = "Up to £350 at 1.5%; less at 1% (not stated)";
 const EPOS_NOW_RESIDUAL_SUMMARY = "50% (Platinum only); other tiers unstated";
-const IGNITE_UPFRONT_SUMMARY = "£140–£400 (by device/term)";
-const IGNITE_RESIDUAL_SUMMARY = "40% above interchange/scheme — requires 1+ new live MID/month company-wide to stay qualified";
+const CLOVER_UPFRONT_SUMMARY = "£140–£400 (by device/term)";
+const CLOVER_RESIDUAL_SUMMARY = "40% above interchange/scheme — requires 1+ new live MID/month company-wide to stay qualified";
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
@@ -111,6 +113,8 @@ function computeMyposEstimate(data: ExtractedData): PartnerEstimate {
       quotableRateSummary: null,
       upfrontCommissionSummary: MYPOS_UPFRONT_SUMMARY,
       residualSummary: MYPOS_RESIDUAL_SUMMARY,
+      pricingStatus: "unavailable",
+      rateDisplay: null,
     };
   }
 
@@ -153,6 +157,8 @@ function computeMyposEstimate(data: ExtractedData): PartnerEstimate {
       quotableRateSummary: null,
       upfrontCommissionSummary: MYPOS_UPFRONT_SUMMARY,
       residualSummary: MYPOS_RESIDUAL_SUMMARY,
+      pricingStatus: "unavailable",
+      rateDisplay: null,
     };
   }
 
@@ -190,22 +196,36 @@ function computeMyposEstimate(data: ExtractedData): PartnerEstimate {
     costUnavailableReason: null,
     tmpValue: MYPOS_TMP_ESTIMATE,
     tmpValueIsEstimate: true,
-    tmpValueNote: "£600 ceiling of the £100–£600 rental-tier commission range, achieved by charging the merchant the £25/month terminal tier — TMP's own choice, not a partner-side constraint. Residual is 30% of Net Revenue, subject to TMP placing 10+ new FTC clients in the same month — not included in this figure since Net Revenue isn't determinable from a statement.",
+    tmpValueNote: "£600 ceiling of the £100–£600 rental-tier commission range, achieved by charging the merchant the £25/month terminal tier — your own choice, not a partner-side constraint. Residual is 30% of Net Revenue, subject to you placing 10+ new FTC clients in the same month — not included in this figure since Net Revenue isn't determinable from a statement.",
     tmpValueUnavailableReason: null,
     flag,
     quotableRateSummary: myposQuotableRateSummary(primary),
     upfrontCommissionSummary: MYPOS_UPFRONT_SUMMARY,
     residualSummary: MYPOS_RESIDUAL_SUMMARY,
+    pricingStatus: "calculated",
+    rateDisplay: {
+      structure: "consumer-debit-credit",
+      lines: [
+        { label: "Consumer Debit (CP)", value: formatMyposRate(primary.cpConsumerDebit) },
+        { label: "Consumer Credit (CP)", value: formatMyposRate(primary.cpConsumerCredit) },
+      ],
+      indicative: false,
+    },
   };
 }
 
 // ---------------------------------------------------------------------------
-// DNA Payments: only the two anchor turnover bands have a stated Debit rate.
+// DNA Payments: 10 monthly turnover bands, each with its own Debit/Credit/
+// Business Debit/Business Credit/Online Debit/Online Credit rate plus an
+// authorisation fee — full coverage, no intermediate-band gaps. Debit Card is
+// used as the blended proxy for estimatedCost, consistent with the approach
+// used for myPOS above (statements don't reliably give a card-type mix).
 // ---------------------------------------------------------------------------
 
 function computeDnaEstimate(data: ExtractedData): PartnerEstimate {
   const partner = "DNA Payments";
   const turnover = data.totalTurnover;
+  const txnCount = data.transactionCount;
 
   if (turnover === null) {
     return {
@@ -221,20 +241,18 @@ function computeDnaEstimate(data: ExtractedData): PartnerEstimate {
       quotableRateSummary: null,
       upfrontCommissionSummary: DNA_UPFRONT_SUMMARY,
       residualSummary: DNA_RESIDUAL_SUMMARY,
+      pricingStatus: "unavailable",
+      rateDisplay: null,
     };
   }
 
-  let ratePercent: number | null = null;
-  if (turnover <= 50000) ratePercent = 0.6;
-  else if (turnover > 1000000) ratePercent = 0.3;
-
-  if (ratePercent === null) {
+  if (isSingleDayPeriod(data.statementPeriod)) {
     return {
       partner,
       estimatedCost: null,
       costNote: null,
       costUnavailableReason:
-        "This turnover falls in one of DNA's intermediate volume bands (£50k–£1m) — only the lowest (£0–£50k, 0.6%) and highest (>£1m, 0.3%) band rates are stated; the bands in between aren't.",
+        "This statement covers a single day, not a full month — DNA's volume bands are monthly, so a single day's turnover can't reliably show which band applies.",
       tmpValue: null,
       tmpValueIsEstimate: false,
       tmpValueNote: null,
@@ -243,24 +261,60 @@ function computeDnaEstimate(data: ExtractedData): PartnerEstimate {
       quotableRateSummary: null,
       upfrontCommissionSummary: DNA_UPFRONT_SUMMARY,
       residualSummary: DNA_RESIDUAL_SUMMARY,
+      pricingStatus: "indicative",
+      rateDisplay: null,
     };
   }
 
-  const bandText = turnover <= 50000 ? "turnover ≤£50k band" : "turnover >£1m band";
+  const band = dnaBandFor(turnover);
+
+  if (!band) {
+    return {
+      partner,
+      estimatedCost: null,
+      costNote: null,
+      costUnavailableReason: "This turnover doesn't fall within any of DNA's published volume bands.",
+      tmpValue: null,
+      tmpValueIsEstimate: false,
+      tmpValueNote: null,
+      tmpValueUnavailableReason: "Upfront commission is not stated for DNA.",
+      flag: null,
+      quotableRateSummary: null,
+      upfrontCommissionSummary: DNA_UPFRONT_SUMMARY,
+      residualSummary: DNA_RESIDUAL_SUMMARY,
+      pricingStatus: "unavailable",
+      rateDisplay: null,
+    };
+  }
+
+  const authFeeTotal = txnCount !== null ? txnCount * (band.authFeePence / 100) : 0;
 
   return {
     partner,
-    estimatedCost: round2(turnover * (ratePercent / 100)),
-    costNote: `Debit CP rate used as blended proxy (${ratePercent}% band). Auth/PCI/MMSC fees not stated for DNA.`,
+    estimatedCost: round2(turnover * (band.debit / 100) + authFeeTotal),
+    costNote: `Debit Card rate used as blended proxy (${band.label} band: ${band.debit}%), plus authorisation fees (${band.authFeePence}p/txn). Gateway fee (${DNA_GATEWAY_FEE_TEXT}) and PCI fee not included — flat monthly charges, not tied to this period's turnover.`,
     costUnavailableReason: null,
     tmpValue: null,
     tmpValueIsEstimate: false,
     tmpValueNote: "Residual is 30% of Net Recurring Revenue (a margin figure) — not included in the ranking figure since DNA's own margin per merchant isn't determinable from a statement. Upfront commission is not stated.",
     tmpValueUnavailableReason: "No upfront commission stated; residual basis is margin, not turnover.",
     flag: null,
-    quotableRateSummary: `${ratePercent}% Debit, card-present (${bandText})`,
+    quotableRateSummary: `${band.debit}% Debit / ${band.credit}% Credit, card-present (${band.label} band)`,
     upfrontCommissionSummary: DNA_UPFRONT_SUMMARY,
     residualSummary: DNA_RESIDUAL_SUMMARY,
+    pricingStatus: "calculated",
+    rateDisplay: {
+      structure: "interchange",
+      lines: [
+        { label: "Debit Card", value: `${band.debit}%` },
+        { label: "Credit Card", value: `${band.credit}%` },
+        { label: "Business Debit", value: `${band.businessDebit}%` },
+        { label: "Business Credit", value: `${band.businessCredit}%` },
+        { label: "Online Debit (inc. CNP)", value: `${band.onlineDebit}%` },
+        { label: "Online Credit (inc. CNP)", value: `${band.onlineCredit}%` },
+      ],
+      indicative: false,
+    },
   };
 }
 
@@ -286,13 +340,35 @@ function computeShift4Estimate(data: ExtractedData): PartnerEstimate {
       quotableRateSummary: null,
       upfrontCommissionSummary: SHIFT4_UPFRONT_SUMMARY,
       residualSummary: SHIFT4_RESIDUAL_SUMMARY,
+      pricingStatus: "unavailable",
+      rateDisplay: null,
+    };
+  }
+
+  if (isSingleDayPeriod(data.statementPeriod)) {
+    return {
+      partner,
+      estimatedCost: null,
+      costNote: null,
+      costUnavailableReason:
+        "This statement covers a single day, not a full month — Shift4's £10k/month threshold (0.7% vs. 1.25%) can't be reliably assessed from a single day's turnover, since one day's figure doesn't show whether the merchant's monthly volume is above or below £10k.",
+      tmpValue: null,
+      tmpValueIsEstimate: false,
+      tmpValueNote: null,
+      tmpValueUnavailableReason: null,
+      flag: null,
+      quotableRateSummary: null,
+      upfrontCommissionSummary: SHIFT4_UPFRONT_SUMMARY,
+      residualSummary: SHIFT4_RESIDUAL_SUMMARY,
+      pricingStatus: "indicative",
+      rateDisplay: null,
     };
   }
 
   const ratePercent = turnover >= 10000 ? 0.7 : 1.25;
   const tierNote =
     turnover >= 10000
-      ? "0.7% blended headline rate (≥£10k/month tier) — TMP has negotiated as low as 0.5–0.6% split by card type; confirm before quoting."
+      ? "0.7% blended headline rate (≥£10k/month tier) — may be negotiable to 0.5–0.6% split by card type; confirm before quoting."
       : "1.25% blended minimum (under £10k/month tier).";
   const quotableRateSummary =
     turnover >= 10000
@@ -312,6 +388,12 @@ function computeShift4Estimate(data: ExtractedData): PartnerEstimate {
     quotableRateSummary,
     upfrontCommissionSummary: SHIFT4_UPFRONT_SUMMARY,
     residualSummary: SHIFT4_RESIDUAL_SUMMARY,
+    pricingStatus: "calculated",
+    rateDisplay: {
+      structure: "blended",
+      lines: [{ label: "Blended rate", value: `${ratePercent}%` }],
+      indicative: false,
+    },
   };
 }
 
@@ -347,6 +429,8 @@ function computeEposNowEstimate(data: ExtractedData): PartnerEstimate {
       quotableRateSummary: null,
       upfrontCommissionSummary: EPOS_NOW_UPFRONT_SUMMARY,
       residualSummary: EPOS_NOW_RESIDUAL_SUMMARY,
+      pricingStatus: "unavailable",
+      rateDisplay: null,
     };
   }
 
@@ -366,6 +450,17 @@ function computeEposNowEstimate(data: ExtractedData): PartnerEstimate {
     quotableRateSummary: "1% blended (max customer saving) — alternative: 1.5% blended (max commission, up to £350)",
     upfrontCommissionSummary: EPOS_NOW_UPFRONT_SUMMARY,
     residualSummary: EPOS_NOW_RESIDUAL_SUMMARY,
+    // Indicative, not calculated: a real number comes out, but which of the
+    // two rates gets quoted is still TMP's unresolved choice at point of sale.
+    pricingStatus: "indicative",
+    rateDisplay: {
+      structure: "blended",
+      lines: [
+        { label: "Recommended (best for merchant)", value: `${EPOS_NOW_RATE_LOW}%` },
+        { label: "Alternative (max commission)", value: `${EPOS_NOW_RATE_HIGH}%` },
+      ],
+      indicative: true,
+    },
   };
 }
 
@@ -388,66 +483,69 @@ function computeTeyaEstimate(): PartnerEstimate {
     costUnavailableReason: `${TEYA_NOTE}: no confirmed negotiated CP/CNP rate on file — Teya prices per-merchant via its own calculator. Check ${TEYA_LINK}.`,
     tmpValue: null,
     tmpValueIsEstimate: false,
-    tmpValueNote: "£500 upfront per activation. Residual is 50% but basis (turnover or margin) is unconfirmed.",
+    tmpValueNote: "£350 upfront per activation. Residual is 50% but basis (turnover or margin) is unconfirmed.",
     tmpValueUnavailableReason: "Residual and upfront both real, but can't be scored against a merchant cost that isn't calculable for Teya.",
     flag: TEYA_NOTE,
     quotableRateSummary: null,
     upfrontCommissionSummary: TEYA_UPFRONT_SUMMARY,
     residualSummary: TEYA_RESIDUAL_SUMMARY,
+    // No percentage figure of any kind is shown for Teya — there's no confirmed
+    // public or negotiated rate on file, only "check the pricing calculator".
+    pricingStatus: "unavailable",
+    rateDisplay: null,
   };
 }
 
 // ---------------------------------------------------------------------------
-// Ignite (Clover Flex / Flex Pocket): rates are given as min-max bands per
-// card type, not a single fixed rate — TMP sets where in the band to sell.
-// The estimate below uses the MINIMUM of the Consumer Debit band as a
-// best-case figure (the most competitive TMP could sell at), clearly labelled
-// so it's never read as a guaranteed number. Commission is a flat per-device
-// amount that varies by device and contract term, not a % of turnover; the
-// £400 ceiling (Clover Flex, 36-month term) is used for ranking, same "TMP's
-// own choice, use the top of the range" logic as myPOS/Epos Now above.
+// Clover (Ignite Payments reseller — Clover Flex / Flex Pocket): rates are
+// given as min-max bands per card type, not a single fixed rate — TMP sets
+// where in the band to sell. Unlike myPOS/Epos Now/DNA above, the minimum of
+// the band is a negotiation floor, not something TMP can just choose to sell
+// at — so it's never used as a ranking figure (that would always make this
+// partner look artificially cheapest against partners with real calculable
+// rates). estimatedCost and tmpValue stay null; surfaced only via its own
+// Partner Detail card as a separate, non-ranked "also worth checking" option
+// — the same treatment Teya gets for the same reason (no confirmed rate on
+// file). Displayed as "Clover" (the hardware brand) throughout the app —
+// see the collision note on this partner's entry in partnerRates.ts.
 // ---------------------------------------------------------------------------
 
-const IGNITE_MIN_RATE = 0.29; // Consumer Debit, minimum sellable (best-case)
-const IGNITE_MAX_RATE = 1.49; // Consumer Debit, maximum sellable
-const IGNITE_TMP_ESTIMATE = 400; // ceiling: Clover Flex, 36-month term
+const CLOVER_MIN_RATE = 0.29; // Consumer Debit, minimum of the sellable band
+const CLOVER_MAX_RATE = 1.49; // Consumer Debit, maximum of the sellable band
 
-function computeIgniteEstimate(data: ExtractedData): PartnerEstimate {
-  const partner = "Ignite";
-  const turnover = data.totalTurnover;
+function computeCloverEstimate(): PartnerEstimate {
+  const partner = "Clover";
 
-  if (turnover === null) {
-    return {
-      partner,
-      estimatedCost: null,
-      costNote: null,
-      costUnavailableReason: "Statement has no total turnover figure.",
-      tmpValue: null,
-      tmpValueIsEstimate: false,
-      tmpValueNote: null,
-      tmpValueUnavailableReason:
-        "Commission depends on which Clover device (Flex or Flex Pocket) and contract term (36 or 48 months) is sold — not determinable from a statement.",
-      flag: null,
-      quotableRateSummary: null,
-      upfrontCommissionSummary: IGNITE_UPFRONT_SUMMARY,
-      residualSummary: IGNITE_RESIDUAL_SUMMARY,
-    };
-  }
-
+  // Deliberately NOT ranked: the minimum band rate is a negotiation floor,
+  // not a confirmed quote, so it's never numerically comparable to other
+  // partners' real calculable rates (it would always look artificially
+  // cheapest). estimatedCost/tmpValue stay null so this partner is
+  // automatically excluded from Best for Merchant / Best for TMP, the same
+  // mechanism that already keeps Teya out of the ranked lists — it still
+  // shows up in its own Partner Detail card below with this context.
   return {
     partner,
-    estimatedCost: round2(turnover * (IGNITE_MIN_RATE / 100)),
-    costNote: `Best-case rate (Ignite's minimum sellable rate) — ${IGNITE_MIN_RATE}% Consumer Debit used as blended proxy. Ignite sets a fixed min/max band per card type (${IGNITE_MIN_RATE}%–${IGNITE_MAX_RATE}% Consumer Debit); the actual rate quoted to this merchant may be higher. Auth/PCI/MMSC fees are also range-based on Ignite's schedule and not included here.`,
-    costUnavailableReason: null,
-    tmpValue: IGNITE_TMP_ESTIMATE,
-    tmpValueIsEstimate: true,
-    tmpValueNote:
-      "£400 ceiling — the top of Ignite's per-device commission range (Clover Flex, 36-month term). Full range: Flex £400 (36-month) / £200 (48-month); Flex Pocket £140 (36-month) / £280 (48-month). Residual is 40% above interchange/scheme fees, but requires 1+ new live MID per month across TMP's whole Ignite relationship — not per merchant — to stay qualified; not included in this figure.",
-    tmpValueUnavailableReason: null,
-    flag: "Best-case rate shown — actual quoted rate may be higher, up to 1.49% max",
-    quotableRateSummary: `Best-case rate (Ignite's minimum sellable rate): ${IGNITE_MIN_RATE}% Consumer Debit / 0.50% Consumer Credit (blended min. band) — up to ${IGNITE_MAX_RATE}% max, per merchant negotiation`,
-    upfrontCommissionSummary: IGNITE_UPFRONT_SUMMARY,
-    residualSummary: IGNITE_RESIDUAL_SUMMARY,
+    estimatedCost: null,
+    costNote: null,
+    costUnavailableReason: `Rate is negotiable between ${CLOVER_MIN_RATE}% and ${CLOVER_MAX_RATE}% Consumer Debit depending on card mix and what's agreed for this merchant — not a confirmed quote, so not ranked against other partners. Submit merchant details via Clover's portal to confirm an actual rate before quoting.`,
+    tmpValue: null,
+    tmpValueIsEstimate: false,
+    tmpValueNote: null,
+    tmpValueUnavailableReason:
+      "Commission depends on which Clover device (Flex or Flex Pocket) and contract term (36 or 48 months) is sold — not determinable from a statement, and not scored against an unconfirmed rate.",
+    flag: "Also worth checking — rate negotiable, not a confirmed quote (see below)",
+    quotableRateSummary: `Indicative only, not a confirmed quote: ${CLOVER_MIN_RATE}% Consumer Debit / 0.50% Consumer Credit minimum band — up to ${CLOVER_MAX_RATE}% max, per merchant negotiation`,
+    upfrontCommissionSummary: CLOVER_UPFRONT_SUMMARY,
+    residualSummary: CLOVER_RESIDUAL_SUMMARY,
+    pricingStatus: "indicative",
+    rateDisplay: {
+      structure: "from-rate",
+      lines: [
+        { label: "Consumer Debit", value: `From ${CLOVER_MIN_RATE}%` },
+        { label: "Consumer Credit", value: "From 0.50%" },
+      ],
+      indicative: true,
+    },
   };
 }
 
@@ -460,7 +558,7 @@ export function computeRanking(data: ExtractedData): RankingSummary {
     computeShift4Estimate(data),
     computeTeyaEstimate(),
     computeEposNowEstimate(data),
-    computeIgniteEstimate(data),
+    computeCloverEstimate(),
   ];
 
   const bestForMerchant = estimates
@@ -480,6 +578,7 @@ export function computeRanking(data: ExtractedData): RankingSummary {
     bestForMerchant,
     bestForTmp,
     bestForTmpCaveat: BEST_FOR_TMP_CAVEAT,
+    singleDayNotice: isSingleDayPeriod(data.statementPeriod) ? SINGLE_DAY_NOTICE : null,
     teyaNote: `${TEYA_NOTE} (${TEYA_LINK})`,
     otherOptions: [...OTHER_OPTION_PARTNERS],
   };

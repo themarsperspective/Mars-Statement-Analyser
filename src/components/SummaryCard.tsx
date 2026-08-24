@@ -39,7 +39,7 @@ export default function SummaryCard({
               className={`${inputBase} w-full text-base font-medium`}
             />
           ) : (
-            <h2 className="text-xl font-semibold text-neutral-900 leading-tight">
+            <h2 className="text-2xl font-semibold text-neutral-900 leading-tight">
               {data.merchantName || "—"}
             </h2>
           )}
@@ -55,7 +55,7 @@ export default function SummaryCard({
                 className={`${inputBase} w-full sm:w-40 text-sm`}
               />
             ) : (
-              <span className="text-sm text-neutral-700">{data.acquirerName || "—"}</span>
+              <span className="text-base text-neutral-700">{data.acquirerName || "—"}</span>
             )}
           </IdentityField>
 
@@ -68,7 +68,7 @@ export default function SummaryCard({
                 className={`${inputBase} w-full sm:w-44 text-sm`}
               />
             ) : (
-              <span className="text-sm text-neutral-700">{data.statementPeriod || "—"}</span>
+              <span className="text-base text-neutral-700">{data.statementPeriod || "—"}</span>
             )}
           </IdentityField>
         </div>
@@ -100,11 +100,11 @@ export default function SummaryCard({
             </div>
           ) : (
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-2xl font-semibold text-neutral-900 tabular-nums">
+              <span className="text-2xl sm:text-3xl font-bold text-neutral-900 tabular-nums leading-none">
                 {data.blendedRate.value !== null ? `${data.blendedRate.value}%` : "—"}
               </span>
               {data.blendedRate.source && (
-                <span className="text-xs text-indigo-500">
+                <span className="text-sm text-indigo-500">
                   {data.blendedRate.source === "stated" ? "Stated on statement" : "Calculated"}
                 </span>
               )}
@@ -113,7 +113,7 @@ export default function SummaryCard({
         </StatTile>
 
         <StatTile label="Total Actual Charges This Period">
-          <span className="text-2xl font-semibold text-neutral-900 tabular-nums">
+          <span className="text-2xl sm:text-3xl font-bold text-neutral-900 tabular-nums leading-none">
             £{fmtMoney(totalActualCharges)}
           </span>
         </StatTile>
@@ -128,12 +128,32 @@ export default function SummaryCard({
               className={`${inputBase} w-full text-lg font-semibold`}
             />
           ) : (
-            <span className="text-2xl font-semibold text-neutral-900 tabular-nums">
+            <span className="text-2xl sm:text-3xl font-bold text-neutral-900 tabular-nums leading-none">
               £{fmtMoney(data.totalTurnover)}
             </span>
           )}
         </StatTile>
       </div>
+
+      {(data.transactionCount !== null || data.averageTransactionValue !== null) && (
+        <div className="flex flex-wrap gap-x-8 gap-y-2 px-6 sm:px-7 py-3 border-t border-indigo-100 bg-white/40">
+          {data.transactionCount !== null && (
+            <MiniStat label="Transaction Count" value={data.transactionCount.toLocaleString()} />
+          )}
+          {data.averageTransactionValue !== null && (
+            <MiniStat label="Average Transaction Value" value={`£${fmtMoney(data.averageTransactionValue)}`} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <span className="text-xs font-semibold uppercase tracking-wider text-indigo-400">{label}</span>
+      <span className="text-base font-semibold text-neutral-700 tabular-nums">{value}</span>
     </div>
   );
 }
@@ -149,7 +169,7 @@ function IdentityField({
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${grow ? "flex-1 min-w-0" : ""}`}>
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-500">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">{label}</span>
       {children}
     </div>
   );
@@ -158,7 +178,7 @@ function IdentityField({
 function StatTile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="px-6 sm:px-7 py-5 flex flex-col gap-2 min-w-0 bg-white/60">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-500">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">{label}</span>
       {children}
     </div>
   );
