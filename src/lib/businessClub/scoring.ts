@@ -1,8 +1,8 @@
 import { ExtractedData } from "../types";
 import { classifyIndustry } from "./classifyIndustry";
-import { gatherEvidence } from "./evidence";
+import { Evidence, gatherEvidence } from "./evidence";
 import { CONFLICT_GROUPS, INDUSTRIES, MODIFIERS, OTHER_UNCLASSIFIED, SCORE_BANDS } from "./config";
-import { DeterministicScoringResult, HighRiskAssessment, ModifierFired, OpportunityScore, ScoreBand, SERVICE_NAMES } from "./types";
+import { DeterministicScoringResult, HighRiskAssessment, IndustryClassification, ModifierFired, OpportunityScore, ScoreBand, SERVICE_NAMES } from "./types";
 
 function clamp(n: number): number {
   return Math.max(0, Math.min(100, Math.round(n)));
@@ -13,21 +13,31 @@ function bandFor(score: number): ScoreBand {
   return band ? { label: band.label, description: band.description } : { label: "Low", description: "" };
 }
 
+/** Statement-based entry point — unchanged behaviour, thin wrapper over scoreFromEvidence(). */
 export function computeDeterministicScoring(data: ExtractedData): DeterministicScoringResult {
-  const classification = classifyIndustry(data);
+  return scoreFromEvidence(classifyIndustry(data), gatherEvidence(data));
+}
+
+/** The actual scoring engine: modifier firing, conflict resolution, banding, ranking. Shared by
+ * the statement-based entry point above and the manual-entry Business Club form, which builds
+ * its own IndustryClassification (direct dropdown selection, bypassing MCC/name inference) and
+ * Evidence (gatherManualEvidence in evidence.ts) then calls this directly — same engine, same
+ * config, same conflict-resolution logic, no forked copy of any of it. */
+export function scoreFromEvidence(classification: IndustryClassification, evidence: Evidence): DeterministicScoringResult {
   const industryScores = INDUSTRIES[classification.industry] ?? INDUSTRIES[OTHER_UNCLASSIFIED];
 
-  const evidence = gatherEvidence(data);
-
-  // Which modifier IDs actually fire, before conflict resolution. Today this
-  // is at most turnover-band + existing-EPOS — everything else has no
-  // evidence available from an extracted statement (see evidence.ts).
+  // Which modifier IDs actually fire, before conflict resolution.
   const firingIds = new Set<string>();
   if (evidence.turnoverBandModifierId) firingIds.add(evidence.turnoverBandModifierId);
   if (evidence.existingEposPresent) firingIds.add("existing_epos_present");
+  if (evidence.terminalCountModifierId) firingIds.add(evidence.terminalCountModifierId);
+  if (evidence.cnpModifierId) firingIds.add(evidence.cnpModifierId);
+  if (evidence.employeesModifierId) firingIds.add(evidence.employeesModifierId);
+  if (evidence.soleTrader) firingIds.add("sole_trader");
+  if (evidence.multiSiteConfirmed) firingIds.add("multi_site_confirmed");
   // no_premises is evaluated separately below (it's keyed by premises_dependency,
   // not a flat adjustment) and never fires either without "confirmed no premises"
-  // evidence, which isn't extractable from a statement today.
+  // evidence, which isn't collected by either evidence path today.
 
   // Conflict resolution: where both sides of a conflict group would fire,
   // keep only the preferred (more specific/confirmed) one.

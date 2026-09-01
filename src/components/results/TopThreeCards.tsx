@@ -70,7 +70,7 @@ export default function TopThreeCards({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <section className="border-2 border-emerald-400 bg-emerald-50/60 p-4 sm:p-5">
+      <section className="border-2 border-emerald-400 bg-emerald-50 p-4 sm:p-5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1">Best for Merchant</h3>
         <p className="text-sm text-neutral-500 mb-1">
           Current: <span className="font-medium text-neutral-700">{currentAcquirerName || "Not stated"}</span> ·{" "}
@@ -103,7 +103,7 @@ export default function TopThreeCards({
         )}
       </section>
 
-      <section className="border-2 border-cyan-400 bg-cyan-50/60 p-4 sm:p-5">
+      <section className="border-2 border-cyan-400 bg-cyan-50 p-4 sm:p-5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-800 mb-1">Best Commercial Option</h3>
         <p className="text-sm text-neutral-600 mb-3">
           Highest estimated commission, using the best figure available for each partner.

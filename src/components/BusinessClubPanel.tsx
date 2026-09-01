@@ -9,7 +9,7 @@ interface BusinessClubPanelProps {
 export default function BusinessClubPanel({ scoring, explanations }: BusinessClubPanelProps) {
   if (scoring.ranked.length === 0) {
     return (
-      <p className="text-base text-neutral-400 border border-dashed border-neutral-300 px-4 py-6 text-center">
+      <p className="text-base text-neutral-400 border border-dashed border-neutral-300 bg-white px-4 py-6 text-center">
         No opportunities scored 60 or above for this statement (industry: {scoring.classification.industry}).
       </p>
     );
@@ -45,8 +45,8 @@ function OpportunityCard({
   explanation: OpportunityExplanation;
 }) {
   return (
-    <div className="border border-neutral-200">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-fuchsia-50/60 border-b border-neutral-200">
+    <div className="border border-neutral-200 bg-white">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 bg-fuchsia-50 border-b border-neutral-200">
         <span className="font-bold text-lg text-neutral-900">{score.service}</span>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-base font-bold text-fuchsia-900 tabular-nums">{score.finalScore}/100</span>
@@ -55,7 +55,7 @@ function OpportunityCard({
           </span>
         </div>
       </div>
-      <div className="px-4 py-3 flex flex-col gap-3">
+      <div className="px-4 py-3 flex flex-col gap-3 bg-white">
         <Field label="Why flagged" value={explanation.whyFlagged} />
         <Field label="Qualifying question" value={explanation.qualifyingQuestion} />
         <Field label="Next step" value={explanation.nextStep} />

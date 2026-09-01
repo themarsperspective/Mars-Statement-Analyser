@@ -19,8 +19,8 @@ export default function BusinessClubReveal({ scoring, explanations }: BusinessCl
 
   if (open) {
     return (
-      <div className="border border-fuchsia-200">
-        <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-fuchsia-50/60 border-b border-fuchsia-200">
+      <div className="border border-fuchsia-200 bg-white">
+        <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-fuchsia-50 border-b border-fuchsia-200">
           <span className="text-xs font-semibold uppercase tracking-wider text-fuchsia-800">Business Club</span>
           <button
             type="button"
@@ -30,7 +30,7 @@ export default function BusinessClubReveal({ scoring, explanations }: BusinessCl
             Hide
           </button>
         </div>
-        <div className="p-5">
+        <div className="p-5 bg-white">
           <BusinessClubPanel scoring={scoring} explanations={explanations} />
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function BusinessClubReveal({ scoring, explanations }: BusinessCl
   }
 
   return (
-    <div className="border border-fuchsia-200 bg-fuchsia-50/30 px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+    <div className="border border-fuchsia-200 bg-fuchsia-50 px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
       <div>
         <p className="text-base font-semibold text-neutral-900">Business Club</p>
         <p className="text-base text-neutral-600">Explore other opportunities for this business.</p>

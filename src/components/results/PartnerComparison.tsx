@@ -17,9 +17,9 @@ export default function PartnerComparison({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="flex items-center justify-between gap-3 flex-wrap bg-white px-1 py-1">
         <h2 className="text-xl font-bold text-neutral-900">Partner Comparison</h2>
-        <span className="text-xs font-medium uppercase tracking-wider text-neutral-400 border border-neutral-200 px-2 py-0.5">
+        <span className="text-xs font-medium uppercase tracking-wider text-neutral-400 border border-neutral-200 bg-white px-2 py-0.5">
           Internal view
         </span>
       </div>

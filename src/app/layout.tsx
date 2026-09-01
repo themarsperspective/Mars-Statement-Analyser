@@ -31,7 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white text-neutral-900">
         <BackgroundMotif />
-        <header className="border-b border-neutral-200 bg-white/90 backdrop-blur-sm relative z-10">
+        <header className="border-b border-neutral-200 bg-white relative z-10">
           <div className="mx-auto max-w-5xl px-4 sm:px-8 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-y-3 gap-x-4">
             <Link href="/" className="flex items-center gap-2.5 sm:gap-3 shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -47,6 +47,9 @@ export default function RootLayout({
             <nav className="flex gap-4 sm:gap-8 text-xs font-medium uppercase tracking-wide text-neutral-500">
               <Link href="/" className="hover:text-neutral-900 transition-colors whitespace-nowrap">
                 New Analysis
+              </Link>
+              <Link href="/business-club" className="hover:text-neutral-900 transition-colors whitespace-nowrap">
+                Business Club
               </Link>
               <Link href="/statements" className="hover:text-neutral-900 transition-colors whitespace-nowrap">
                 All Statements

@@ -40,7 +40,7 @@ export default async function StatementsPage() {
       )}
 
       {statements.length === 0 ? (
-        <div className="border border-dashed border-neutral-300 px-6 py-16 text-center">
+        <div className="border border-dashed border-neutral-300 bg-white px-6 py-16 text-center">
           <p className="text-sm text-neutral-400">
             Nothing here yet.{" "}
             <Link href="/" className="text-neutral-700 underline underline-offset-2">
@@ -50,7 +50,7 @@ export default async function StatementsPage() {
           </p>
         </div>
       ) : (
-        <div className="border border-neutral-200 overflow-x-auto">
+        <div className="border border-neutral-200 bg-white overflow-x-auto">
           <table className="w-full text-sm min-w-[860px]">
             <thead>
               <tr className="bg-neutral-50 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400 border-b border-neutral-200">
@@ -66,7 +66,7 @@ export default async function StatementsPage() {
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {statements.map((s) => (
-                <tr key={s.id} className="align-top hover:bg-neutral-50/60 transition-colors">
+                <tr key={s.id} className="align-top hover:bg-neutral-50 transition-colors">
                   <td className="px-4 py-3.5">
                     <Link
                       href={`/statements/${s.id}`}

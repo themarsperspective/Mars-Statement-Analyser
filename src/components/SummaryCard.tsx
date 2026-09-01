@@ -28,7 +28,7 @@ export default function SummaryCard({
   onBlendedSourceChange,
 }: SummaryCardProps) {
   return (
-    <div className="border border-indigo-200 border-t-4 border-t-indigo-600 bg-indigo-50/50 shadow-[0_2px_8px_rgba(67,56,202,0.08)]">
+    <div className="border border-indigo-200 border-t-4 border-t-indigo-600 bg-indigo-50 shadow-[0_2px_8px_rgba(67,56,202,0.08)]">
       <div className="px-6 sm:px-7 py-5 border-b border-indigo-100 flex flex-col md:flex-row md:items-end md:justify-between gap-5">
         <IdentityField label="Merchant Name" grow>
           {editable ? (
@@ -136,7 +136,7 @@ export default function SummaryCard({
       </div>
 
       {(data.transactionCount !== null || data.averageTransactionValue !== null) && (
-        <div className="flex flex-wrap gap-x-8 gap-y-2 px-6 sm:px-7 py-3 border-t border-indigo-100 bg-white/40">
+        <div className="flex flex-wrap gap-x-8 gap-y-2 px-6 sm:px-7 py-3 border-t border-indigo-100 bg-white">
           {data.transactionCount !== null && (
             <MiniStat label="Transaction Count" value={data.transactionCount.toLocaleString()} />
           )}
@@ -177,7 +177,7 @@ function IdentityField({
 
 function StatTile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="px-6 sm:px-7 py-5 flex flex-col gap-2 min-w-0 bg-white/60">
+    <div className="px-6 sm:px-7 py-5 flex flex-col gap-2 min-w-0 bg-white">
       <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500">{label}</span>
       {children}
     </div>

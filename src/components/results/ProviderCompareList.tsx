@@ -103,7 +103,7 @@ function ProviderCard({
   const terminalLine = terminalCostRangeSummary(rateCard);
 
   return (
-    <div id={`provider-${slugify(estimate.partner)}`} className="border border-neutral-200 scroll-mt-4">
+    <div id={`provider-${slugify(estimate.partner)}`} className="border border-neutral-200 bg-white scroll-mt-4">
       <div className="px-4 py-3 bg-neutral-50 border-b border-neutral-200 flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-2 flex-wrap min-w-0">
@@ -188,7 +188,7 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 
 function ProviderDetails({ estimate, rateCard }: { estimate: PartnerEstimate; rateCard?: PartnerRateCard }) {
   return (
-    <div className="mt-3 border border-neutral-200">
+    <div className="mt-3 border border-neutral-200 bg-white">
       <SectionHeading>Pricing</SectionHeading>
       <div className="divide-y divide-neutral-100 border-b border-neutral-100">
         <Field label="Pricing model" value={rateCard?.pricingModel} />
