@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AUTH_COOKIE_NAME, computeAuthToken } from "@/lib/authToken";
+import { AUTH_COOKIE_NAME, isAuthedToken } from "@/lib/authToken";
 
 // Gates saved-statement viewing only — "/" (New Analysis: upload, extract,
 // edit, save) is deliberately left out of the matcher so it stays fully
@@ -20,10 +20,8 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const password = process.env.STATEMENTS_PASSWORD;
   const cookie = req.cookies.get(AUTH_COOKIE_NAME)?.value;
-  const expected = password ? await computeAuthToken(password) : null;
-  const authed = Boolean(cookie && expected && cookie === expected);
+  const authed = await isAuthedToken(cookie);
 
   if (authed) return NextResponse.next();
 

@@ -12,3 +12,12 @@ export async function computeAuthToken(password: string): Promise<string> {
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
+
+/** Shared by proxy.ts (gating /statements) and "/" (gating just the internal Partner
+ * Comparison panel on the otherwise-open New Analysis page) — same cookie, same check. */
+export async function isAuthedToken(cookieValue: string | undefined): Promise<boolean> {
+  const password = process.env.STATEMENTS_PASSWORD;
+  if (!password || !cookieValue) return false;
+  const expected = await computeAuthToken(password);
+  return cookieValue === expected;
+}

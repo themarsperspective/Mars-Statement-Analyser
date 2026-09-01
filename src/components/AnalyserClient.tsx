@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import Dropzone from "./Dropzone";
 import SummaryCard from "./SummaryCard";
 import FullBreakdown from "./results/FullBreakdown";
 import PartnerComparison from "./results/PartnerComparison";
+import BusinessClubReveal from "./results/BusinessClubReveal";
 import { emptyExtractedData, ExtractedData, FeeItem, RateCardItem, SchemeRate } from "@/lib/types";
 import { SAVE_UNAVAILABLE_MESSAGE } from "@/lib/deployment";
+import { computeDeterministicScoring } from "@/lib/businessClub/scoring";
+import { composeExplanation } from "@/lib/businessClub/compose";
 
 type FieldKey = "mcc" | "transactionCount" | "averageTransactionValue";
 
@@ -25,12 +28,30 @@ function sumActualCharges(data: ExtractedData): number {
 
 type Status = "idle" | "loading" | "ready" | "saving" | "saved" | "error";
 
-export default function AnalyserClient({ saveAvailable = true }: { saveAvailable?: boolean }) {
+export default function AnalyserClient({
+  saveAvailable = true,
+  isAuthed = false,
+}: {
+  saveAvailable?: boolean;
+  isAuthed?: boolean;
+}) {
   const [status, setStatus] = useState<Status>("idle");
   const [data, setData] = useState<ExtractedData>(emptyExtractedData());
   const [sourceFileName, setSourceFileName] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [savedId, setSavedId] = useState<string>("");
+
+  // Deterministic and local (no external API) — cheap enough to compute eagerly on
+  // every edit, same as the saved-statement page. Only the DISPLAY is gated, via
+  // BusinessClubReveal's click-to-open, not this computation.
+  const businessClubScoring = useMemo(() => computeDeterministicScoring(data), [data]);
+  const businessClubExplanations = useMemo(
+    () =>
+      businessClubScoring.ranked.map((s) =>
+        composeExplanation(s.service, businessClubScoring.classification.industry, s.modifiersFired)
+      ),
+    [businessClubScoring]
+  );
 
   async function handleFile(file: File) {
     setStatus("loading");
@@ -229,7 +250,9 @@ export default function AnalyserClient({ saveAvailable = true }: { saveAvailable
             onRemoveFeeRow={removeFeeRow}
           />
 
-          <PartnerComparison data={data} totalActualCharges={sumActualCharges(data)} />
+          {isAuthed && <PartnerComparison data={data} totalActualCharges={sumActualCharges(data)} />}
+
+          <BusinessClubReveal scoring={businessClubScoring} explanations={businessClubExplanations} />
 
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-4">
